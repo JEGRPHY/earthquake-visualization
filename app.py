@@ -4,6 +4,7 @@ from script.data_fetcher import fetch_earthquake_data
 from script.map_utils import create_earthquake_map, save_map_as_html
 from script.stats import display_statistics
 from script.plot_utils import plot_magnitude_distribution
+from streamlit_folium import folium_static  # Add this import
 
 # Streamlit app configuration
 st.title("Earthquake Visualization")
@@ -21,7 +22,7 @@ else:
     else:
         # Map Visualization
         m = create_earthquake_map(df)
-        folium_static(m)
+        folium_static(m)  # Now folium_static is defined
         save_map_as_html(m)
 
         # Statistics and Plotting
