@@ -5,39 +5,7 @@ import requests
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 import seaborn as sns
-from selenium import webdriver
-from PIL import Image
-import io
-
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-
-def save_map_as_image(m, output_path="latest_map.png"):
-    # Save the map as an HTML file temporarily
-    m.save("temp_map.html")
-    
-    # Set up Selenium to open the HTML file and take a screenshot
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    # Initialize the driver using Service and executable_path arguments correctly
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    
-    # Open the HTML map file and take a screenshot
-    driver.get("file://" + io.os.path.abspath("temp_map.html"))
-    screenshot = driver.get_screenshot_as_png()
-    driver.quit()
-    
-    # Open the screenshot with PIL and crop it as needed
-    image = Image.open(io.BytesIO(screenshot))
-    # Adjust cropping dimensions as needed
-    image_cropped = image.crop((0, 0, image.width, image.height))
-    image_cropped.save(output_path)
-
+from io import BytesIO
 
 # Fetch earthquake data with error handling
 @st.cache_data
@@ -68,6 +36,12 @@ def fetch_earthquake_data(start_date, end_date):
         st.error("Error: Could not retrieve data from USGS API. Please check your connection or try again later.")
         return pd.DataFrame()
 
+# Save map as HTML for download
+def save_map_as_html(m):
+    # Render map to HTML and create a download button
+    html_data = m._repr_html_()  # Capture map HTML
+    st.download_button("Download Map as HTML", data=html_data, file_name="earthquake_map.html", mime="text/html")
+
 # Streamlit app configuration
 st.title("Earthquake Visualization")
 st.sidebar.header("Filter Options")
@@ -97,10 +71,8 @@ else:
         
         folium_static(m)
 
-        # Save the latest map image
-        if st.button("Save Latest Map Image"):
-            save_map_as_image(m)
-            st.success("Map image saved as 'latest_map.png'.")
+        # Save the latest map image as HTML for download
+        save_map_as_html(m)
 
         st.subheader("Summary Statistics")
         st.write(f"Total Earthquakes: {len(df)}")
