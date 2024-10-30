@@ -10,7 +10,7 @@ def create_earthquake_map(df):
         folium.CircleMarker(
             location=(row["Latitude"], row["Longitude"]),
             radius=8,
-            color="red" if row["Magnitude"] > 5 else "orange",
+            color="red" if row["Magnitude"] > 7 else "orange",
             fill=True,
             fill_opacity=0.7
         ).add_to(m)
