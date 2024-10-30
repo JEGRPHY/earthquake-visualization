@@ -10,7 +10,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from PIL import Image
 import io
 
-# Function to save map as an image
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+
 def save_map_as_image(m, output_path="latest_map.png"):
     # Save the map as an HTML file temporarily
     m.save("temp_map.html")
@@ -20,7 +23,10 @@ def save_map_as_image(m, output_path="latest_map.png"):
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    
+    # Initialize the driver using Service and executable_path arguments correctly
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     
     # Open the HTML map file and take a screenshot
     driver.get("file://" + io.os.path.abspath("temp_map.html"))
@@ -32,6 +38,7 @@ def save_map_as_image(m, output_path="latest_map.png"):
     # Adjust cropping dimensions as needed
     image_cropped = image.crop((0, 0, image.width, image.height))
     image_cropped.save(output_path)
+
 
 # Fetch earthquake data with error handling
 @st.cache_data
