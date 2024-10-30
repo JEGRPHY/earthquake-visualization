@@ -1,7 +1,10 @@
 streamlit
+folium
 pandas
 requests
-folium
 streamlit-folium
 matplotlib
 seaborn
+pillow
+selenium
+webdriver-manager
