@@ -6,7 +6,6 @@ from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
 import seaborn as sns
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from PIL import Image
 import io
 
