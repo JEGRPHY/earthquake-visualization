@@ -8,22 +8,34 @@ import seaborn as sns
 from io import StringIO
 
 # Fetch earthquake data
-@st.cache
+# Fetch earthquake data with error handling
+@st.cache_data
 def fetch_earthquake_data(start_date, end_date):
     url = f'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={start_date}&endtime={end_date}'
     response = requests.get(url)
-    data = response.json()
-    earthquakes = []
-    for feature in data['features']:
-        magnitude = feature['properties']['mag']
-        if magnitude > 4.0:
-            earthquakes.append({
-                "Latitude": feature['geometry']['coordinates'][1],
-                "Longitude": feature['geometry']['coordinates'][0],
-                "Magnitude": magnitude,
-                "Time": feature['properties']['time']
-            })
-    return pd.DataFrame(earthquakes)
+    
+    # Check for a successful response
+    if response.status_code == 200:
+        try:
+            data = response.json()
+            earthquakes = []
+            for feature in data['features']:
+                magnitude = feature['properties']['mag']
+                if magnitude > 4.0:
+                    earthquakes.append({
+                        "Latitude": feature['geometry']['coordinates'][1],
+                        "Longitude": feature['geometry']['coordinates'][0],
+                        "Magnitude": magnitude,
+                        "Time": feature['properties']['time']
+                    })
+            return pd.DataFrame(earthquakes)
+        except ValueError:
+            st.error("Error: Failed to parse earthquake data. Please check the date range and try again.")
+            return pd.DataFrame()  # Return an empty DataFrame if parsing fails
+    else:
+        st.error("Error: Could not retrieve data from USGS API. Please check your connection or try again later.")
+        return pd.DataFrame()  # Return an empty DataFrame if response fails
+
 
 # Streamlit app configuration
 st.title("Earthquake Visualization")
