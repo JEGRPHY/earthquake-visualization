@@ -8,4 +8,3 @@ seaborn
 pillow
 selenium
 webdriver-manager
-folium_static
